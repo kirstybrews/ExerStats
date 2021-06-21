@@ -39,7 +39,7 @@ def main_menu
         menu.choice "Create New Exercise"
         menu.choice "View My Stats"
         menu.choice "Exit"
-        end
+    end
     if selected_exercise == "See All Exercises"
         all_exercises
     elsif selected_exercise == "See My Exercises"
@@ -75,53 +75,49 @@ def display_exercise(exercise_id)
     end
 end
 
+def new_record(exercise_id)
+    weight = @prompt.ask("Input the weight amount you used:", convert: :integer) do |q|
+        q.convert :integer
+        q.messages[:convert?] = "Please enter a number."
+    end
+    sets = @prompt.ask("How many sets did you do?", convert: :integer) do |q|
+        q.convert :integer
+        q.messages[:convert?] = "Please enter a number."
+    end
+    total_reps = @prompt.ask("Input your total reps:", convert: :integer) do |q|
+        q.convert :integer
+        q.messages[:convert?] = "Please enter a number."
+    end
+    Record.create(user_id: @user.id, exercise_id: exercise_id, weight: weight, sets: sets, total_reps: total_reps)
+    view_recent_log
+end
+    
+def view_recent_log
+    puts "Your record was saved!"
+    last_record = @user.records.last
+    exercise = Exercise.find_by(id: last_record.id)
+    puts "#{last_record.exercise.name}"
+    puts "Weight: #{last_record.weight}"
+    puts "Sets: #{last_record.sets}"
+    puts "Total Reps: #{last_record.total_reps}"
+    main_menu
+end
+
 def all_exercises
-        all_exercises = Exercise.all
-        exercise_id = select_an_exercise(all_exercises)
-        display_exercise(exercise_id)
+    all_exercises = Exercise.all
+    exercise_id = select_an_exercise(all_exercises)
+    display_exercise(exercise_id)
 
-        create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
-            menu.choice "Yes"
-            menu.choice "No"
-        end
-        #Asks user if they would like to make a record of this exercise
+    create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
+        menu.choice "Yes"
+        menu.choice "No"
+    end
         
-        if create_new_record == "Yes"
-            weight = @prompt.ask("Input the weight amount you used:", convert: :integer) do |q|
-                q.convert :integer
-                q.messages[:convert?] = "Please enter a number."
-            end
-            sets = @prompt.ask("How many sets did you do?", convert: :integer) do |q|
-                q.convert :integer
-                q.messages[:convert?] = "Please enter a number."
-            end
-            total_reps = @prompt.ask("Input your total reps:", convert: :integer) do |q|
-                q.convert :integer
-                q.messages[:convert?] = "Please enter a number."
-            end
-            Record.create(user_id: @user.id, exercise_id: exercise_id, weight: weight, sets: sets, total_reps: total_reps)
-            puts "Your record was saved!"
-        end
-        #If user selects 'yes', user will have to input the weight used, sets, and total reps. 
-        #Creates a new record for the user.
-
-        view_record = @prompt.select("Would you like to view your last record?") do | menu |
-            menu.choice "Yes"
-            menu.choice "No"
-        end
-        #Asks user if they would like to see their last recorded exercise
-
-        if view_record == "Yes"
-            last_record = @user.records.last
-            exercise = Exercise.find_by(id: last_record.id)
-            puts "#{last_record.exercise.name}"
-            puts "Weight: #{last_record.weight}"
-            puts "Sets: #{last_record.sets}"
-            puts "Total Reps: #{last_record.total_reps}"
-        end
+    if create_new_record == "Yes"
+        new_record(exercise_id)
+    else
         main_menu
-        #If 'yes', user is able to see the name of the exercise, weight, sets, 
-        #and total reps of last session
+    end
 end
 
 def my_exercises
@@ -133,49 +129,16 @@ def my_exercises
         menu.choice "Yes"
         menu.choice "No"
     end
-    #Asks user if they would like to make a record of this exercise
     
     if create_new_record == "Yes"
-        weight = @prompt.ask("Input the weight amount you used:", convert: :integer) do |q|
-            q.convert :integer
-            q.messages[:convert?] = "Please enter a number."
-          end
-        sets = @prompt.ask("How many sets did you do?", convert: :integer) do |q|
-            q.convert :integer
-            q.messages[:convert?] = "Please enter a number."
-          end
-        total_reps = @prompt.ask("Input your total reps:", convert: :integer) do |q|
-            q.convert :integer
-            q.messages[:convert?] = "Please enter a number."
-          end
-        Record.create(user_id: @user.id, exercise_id: exercise_id, weight: weight, sets: sets, total_reps: total_reps)
-        puts "Your record was saved!"
+        new_record(exercise_id)
+    else
+        main_menu
     end
-    #If user selects 'yes', user will have to input the weight used, sets, and total reps. 
-    #Creates a new record for the user.
-
-    view_record = @prompt.select("Would you like to view your last record?") do | menu |
-        menu.choice "Yes"
-        menu.choice "No"
-    end
-    #Asks user if they would like to see their last recorded exercise
-
-    if view_record == "Yes"
-        last_record = @user.records.last
-        exercise = Exercise.find_by(id: last_record.id)
-        puts "#{last_record.exercise.name}"
-        puts "Weight: #{last_record.weight}"
-        puts "Sets: #{last_record.sets}"
-        puts "Total Reps: #{last_record.total_reps}"
-    end
-    main_menu
-    #If 'yes', user is able to see the name of the exercise, weight, sets, 
-    #and total reps of last session
 end
     
 def create_exercise
     exercise_name = @prompt.ask("What is the name of the exercise?")
-    #User inputs name of exercise they would like to create
 
     category = @prompt.select("What is the exercise category?") do | menu |
         menu.choice "Bodyweight"
@@ -184,21 +147,15 @@ def create_exercise
         menu.choice "Lowerbody"
         menu.choice "Kettlebells"
     end
-    #User is prompted to pick an exercise category
 
     instructions = @prompt.ask("Please include some instructions?")
+
     new_exercise = Exercise.create(name: exercise_name, category: category, instructions: instructions)
-    create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
-        menu.choice "Yes"
-        menu.choice "No"
-    end
-    #User is prompted to include instructions for new exercise
 
     puts "Here is your new exercise!"
     puts "#{new_exercise.name}"
     puts "Category: #{new_exercise.category}"
     puts "Instructions: #{new_exercise.instructions}"
-    #Display of chosen exercise
 
     create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
         menu.choice "Yes"
@@ -206,41 +163,10 @@ def create_exercise
     end
     
     if create_new_record == "Yes"
-        weight = @prompt.ask("Input the weight amount you used:", convert: :integer) do |q|
-            q.convert :integer
-            q.messages[:convert?] = "Please enter a number."
-          end
-        sets = @prompt.ask("How many sets did you do?", convert: :integer) do |q|
-            q.convert :integer
-            q.messages[:convert?] = "Please enter a number."
-          end
-        total_reps = @prompt.ask("Input your total reps:", convert: :integer) do |q|
-            q.convert :integer
-            q.messages[:convert?] = "Please enter a number."
-          end
-        Record.create(user_id: @user.id, exercise_id: new_exercise.id, weight: weight, sets: sets, total_reps: total_reps)
-        puts "Your record was saved!"
+        new_record(new_exercise.id)
+    else
+        main_menu
     end
-    #If user selects 'yes', user will have to input the weight used, sets, and total reps. 
-    #Creates a new record for the user.
-
-    view_record = @prompt.select("Would you like to view your last record?") do | menu |
-        menu.choice "Yes"
-        menu.choice "No"
-    end
-    #Asks user if they would like to see their last recorded exercise
-
-    if view_record == "Yes"
-        last_record = @user.records.last
-        exercise = Exercise.find_by(id: last_record.id)
-        puts "#{last_record.exercise.name}"
-        puts "Weight: #{last_record.weight}"
-        puts "Sets: #{last_record.sets}"
-        puts "Total Reps: #{last_record.total_reps}"
-    end
-    main_menu
-    #If 'yes', user is able to see the name of the exercise, weight, sets, 
-    #and total reps of last session
 end
 
 def stat_menu
@@ -262,44 +188,39 @@ def stat_menu
 end
 
 def strongest_exercise
-        max_weight = 0
-        exercise_id = nil
-            @user.records.each do |record| 
-                if record.weight > max_weight
-                    max_weight = record.weight 
-                    exercise_id = record.exercise_id
-            end  
-        end 
-        exercise = Exercise.find_by(id: exercise_id)
-        puts "Your strongest exercise is #{exercise.name} at a weight of #{max_weight}lbs."  
-        stat_menu    
+    max_weight = 0
+    exercise_id = nil
+    @user.records.each do |record| 
+        if record.weight > max_weight
+            max_weight = record.weight 
+            exercise_id = record.exercise_id
+        end  
+    end 
+    exercise = Exercise.find_by(id: exercise_id)
+    puts "Your strongest exercise is #{exercise.name} at a weight of #{max_weight}lbs."  
+    stat_menu    
 end 
 
 def weakest_exercise
-        min_weight = 1000
-        exercise_id = nil
-            @user.records.each do |record| 
-                if record.weight < min_weight
-                    min_weight = record.weight 
-                    exercise_id = record.exercise_id
-            end  
-        end 
-        exercise = Exercise.find_by(id: exercise_id)
-        puts "Your Weakest Exercise is #{exercise.name} at a weight of #{min_weight}lbs."
-       stat_menu 
+    min_weight = 1000
+    exercise_id = nil
+    @user.records.each do |record| 
+        if record.weight < min_weight
+            min_weight = record.weight 
+            exercise_id = record.exercise_id
+        end  
+    end 
+    exercise = Exercise.find_by(id: exercise_id)
+    puts "Your Weakest Exercise is #{exercise.name} at a weight of #{min_weight}lbs."
+    stat_menu 
 end
     
 def personal_records
-            user_exercises = @user.exercises.uniq
-            exercise_id = @prompt.select("Pick an exercise:") do | menu | 
-                user_exercises.each do | exercise |
-                    menu.choice exercise.name, exercise.id
-                end
-            end
-            @user.personal_record(exercise_id)
-    stat_menu 
+    user_exercises = @user.exercises.uniq
+    exercise_id = select_an_exercise(user_exercises)
+    @user.personal_record(exercise_id)
+    stat_menu
 end 
-#user is able to view its personal records 
 
 def run 
     welcome_message
