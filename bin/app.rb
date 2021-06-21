@@ -62,20 +62,23 @@ def select_an_exercise(exercise_array)
     end
 end
 
+#Display of chosen exercise
+def display_exercise(exercise_id)
+    puts "Here is your chosen exercise:"
+    exercise = Exercise.find_by(id: exercise_id)
+    puts "#{exercise.name}"
+    puts "Category: #{exercise.category}"
+    puts "Instructions: #{exercise.instructions}"
+
+    if record = Record.order('id desc').find_by(user_id: @user.id, exercise_id: exercise_id)
+        puts "Last time, you completed #{record.sets} sets and #{record.total_reps} total reps at a weight of #{record.weight}lbs."
+    end
+end
+
 def all_exercises
         all_exercises = Exercise.all
         exercise_id = select_an_exercise(all_exercises)
-
-        puts "Here is your chosen exercise:"
-        exercise = Exercise.find_by(id: exercise_id)
-        puts "#{exercise.name}"
-        puts "Category: #{exercise.category}"
-        puts "Instructions: #{exercise.instructions}"
-        #Display of chosen exercise
-
-        if record = Record.order('id desc').find_by(user_id: @user.id, exercise_id: exercise_id)
-            puts "Last time, you completed #{record.sets} sets and #{record.total_reps} total reps at a weight of #{record.weight}lbs."
-        end
+        display_exercise(exercise_id)
 
         create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
             menu.choice "Yes"
@@ -124,16 +127,7 @@ end
 def my_exercises
     user_exercises = @user.exercises.uniq
     exercise_id = select_an_exercise(user_exercises)
-
-    puts "Here is your chosen exercise:"
-    exercise = Exercise.find_by(id: exercise_id)
-    puts "#{exercise.name}"
-    puts "Category: #{exercise.category}"
-    puts "Instructions: #{exercise.instructions}"
-    #Display of chosen exercise
-
-    record = Record.order('id desc').find_by(user_id: @user.id, exercise_id: exercise_id)
-    puts "Last time, you completed #{record.sets} sets and #{record.total_reps} total reps at a weight of #{record.weight}lbs."
+    display_exercise(exercise_id)
 
     create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
         menu.choice "Yes"
@@ -312,5 +306,5 @@ def run
 end
 
 run
-#binding.pry
-0
+
+0 #Necessary when placing a binding.pry on above line.
