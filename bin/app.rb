@@ -95,18 +95,17 @@ def new_record(exercise_id)
         q.convert :integer
         q.messages[:convert?] = "Please enter a number."
     end
-    Record.create(user_id: @user.id, exercise_id: exercise_id, weight: weight, sets: sets, total_reps: total_reps)
-    view_recent_log
+    record = Record.create(user_id: @user.id, exercise_id: exercise_id, weight: weight, sets: sets, total_reps: total_reps)
+    
+    view_recent_log(record)
 end
     
-def view_recent_log
+def view_recent_log(record)
     puts "Your record was saved!"
-    last_record = @user.records.last
-    exercise = Exercise.find_by(id: last_record.id)
-    puts "#{last_record.exercise.name}"
-    puts "Weight: #{last_record.weight}"
-    puts "Sets: #{last_record.sets}"
-    puts "Total Reps: #{last_record.total_reps}"
+    puts "#{record.exercise.name}"
+    puts "Weight: #{record.weight}"
+    puts "Sets: #{record.sets}"
+    puts "Total Reps: #{record.total_reps}"
     main_menu
 end
 
