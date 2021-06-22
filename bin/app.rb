@@ -58,12 +58,11 @@ def select_an_exercise(exercise_array)
 end
 
 def display_exercise(exercise_id)
-    puts "Here is your chosen exercise:"
     exercise = Exercise.find_by(id: exercise_id)
     puts "#{exercise.name}"
     puts "Category: #{exercise.category}"
     puts "Instructions: #{exercise.instructions}"
-
+    
     if record = Record.order('id desc').find_by(user_id: @user.id, exercise_id: exercise_id)
         puts "Last time, you completed #{record.sets} sets and #{record.total_reps} total reps at a weight of #{record.weight}lbs."
     end
@@ -74,7 +73,7 @@ def create_new_record?(exercise_id)
         menu.choice "Yes"
         menu.choice "No"
     end
-        
+    
     if create_new_record == "Yes"
         new_record(exercise_id)
     else
@@ -99,7 +98,7 @@ def new_record(exercise_id)
     
     view_recent_log(record)
 end
-    
+
 def view_recent_log(record)
     puts "Your record was saved!"
     puts "#{record.exercise.name}"
@@ -112,6 +111,7 @@ end
 def all_exercises
     all_exercises = Exercise.all
     exercise_id = select_an_exercise(all_exercises)
+    puts "Here is your chosen exercise:"
     display_exercise(exercise_id)
     create_new_record?(exercise_id)
 end
@@ -119,13 +119,13 @@ end
 def my_exercises
     user_exercises = @user.exercises.uniq
     exercise_id = select_an_exercise(user_exercises)
+    puts "Here is your chosen exercise:"
     display_exercise(exercise_id)
     create_new_record?(exercise_id)
 end
     
 def create_exercise
     exercise_name = @prompt.ask("What is the name of the exercise?")
-
     category = @prompt.select("What is the exercise category?") do | menu |
         menu.choice "Bodyweight"
         menu.choice "Abs"
@@ -133,16 +133,10 @@ def create_exercise
         menu.choice "Lowerbody"
         menu.choice "Kettlebells"
     end
-
     instructions = @prompt.ask("Please include some instructions?")
-
     new_exercise = Exercise.create(name: exercise_name, category: category, instructions: instructions)
-
     puts "Here is your new exercise!"
-    puts "#{new_exercise.name}"
-    puts "Category: #{new_exercise.category}"
-    puts "Instructions: #{new_exercise.instructions}"
-
+    display_exercise(new_exercise.id)
     create_new_record?(new_exercise.id)
 end
 
