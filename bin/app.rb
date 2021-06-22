@@ -5,7 +5,6 @@ require "tty-prompt"
 @prompt = TTY::Prompt.new
 @user = nil
 
-#Welcome message to user
 def welcome_message
     puts "~~~~~~~~~~~~~~~~~~~~~~~~~"
     puts "} Welcome to BodyWork! {"
@@ -14,7 +13,6 @@ def welcome_message
     user_input 
 end
 
-#Requiring a user to enter their name
 def user_input
     user_input = @prompt.ask("What is your name?") do |q|
         q.required true
@@ -25,13 +23,11 @@ def user_input
     personalized_message
 end  
 
-#Setting a variable to store our user object
 def personalized_message
     puts "Welcome, #{@user.name}!"
     main_menu
 end
 
-#Giving user menu options
 def main_menu
     selected_exercise = @prompt.select("What would you like to do?") do | menu |
         menu.choice "See All Exercises"
@@ -53,7 +49,6 @@ def main_menu
     end
 end
 
-#User is able to view a list of exercises and choose an exercise
 def select_an_exercise(exercise_array)
     @prompt.select("Pick an exercise:") do | menu |
         exercise_array.each do | exercise |
@@ -62,7 +57,6 @@ def select_an_exercise(exercise_array)
     end
 end
 
-#Display of chosen exercise
 def display_exercise(exercise_id)
     puts "Here is your chosen exercise:"
     exercise = Exercise.find_by(id: exercise_id)
@@ -72,6 +66,19 @@ def display_exercise(exercise_id)
 
     if record = Record.order('id desc').find_by(user_id: @user.id, exercise_id: exercise_id)
         puts "Last time, you completed #{record.sets} sets and #{record.total_reps} total reps at a weight of #{record.weight}lbs."
+    end
+end
+
+def create_new_record?(exercise_id)
+    create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
+        menu.choice "Yes"
+        menu.choice "No"
+    end
+        
+    if create_new_record == "Yes"
+        new_record(exercise_id)
+    else
+        main_menu
     end
 end
 
@@ -107,34 +114,14 @@ def all_exercises
     all_exercises = Exercise.all
     exercise_id = select_an_exercise(all_exercises)
     display_exercise(exercise_id)
-
-    create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
-        menu.choice "Yes"
-        menu.choice "No"
-    end
-        
-    if create_new_record == "Yes"
-        new_record(exercise_id)
-    else
-        main_menu
-    end
+    create_new_record?(exercise_id)
 end
 
 def my_exercises
     user_exercises = @user.exercises.uniq
     exercise_id = select_an_exercise(user_exercises)
     display_exercise(exercise_id)
-
-    create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
-        menu.choice "Yes"
-        menu.choice "No"
-    end
-    
-    if create_new_record == "Yes"
-        new_record(exercise_id)
-    else
-        main_menu
-    end
+    create_new_record?(exercise_id)
 end
     
 def create_exercise
@@ -157,16 +144,7 @@ def create_exercise
     puts "Category: #{new_exercise.category}"
     puts "Instructions: #{new_exercise.instructions}"
 
-    create_new_record = @prompt.select("Would you like to log your exercise?") do | menu |
-        menu.choice "Yes"
-        menu.choice "No"
-    end
-    
-    if create_new_record == "Yes"
-        new_record(new_exercise.id)
-    else
-        main_menu
-    end
+    create_new_record?(new_exercise.id)
 end
 
 def stat_menu
