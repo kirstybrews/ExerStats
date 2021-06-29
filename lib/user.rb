@@ -13,7 +13,6 @@ class User < ActiveRecord::Base
     end 
 
     def personal_record(exercise_id)
-        exercise = Exercise.find_by(id: exercise_id)
         exercise_array = self.records.select do | record |
             record.exercise_id == exercise_id
         end 
@@ -21,7 +20,33 @@ class User < ActiveRecord::Base
             record.weight
         end 
         max_weight = weights_array.max 
-        puts "Your PR for #{exercise.name} is #{max_weight}lbs."
     end 
 
+    def strongest_exercise
+        max_weight = 0
+        exercise_id = nil
+        self.records.each do |record| 
+            if record.weight > max_weight
+                max_weight = record.weight 
+                exercise_id = record.exercise_id
+            end  
+        end 
+        exercise = Exercise.find_by(id: exercise_id)
+        puts "Your strongest exercise is #{exercise.name} at a weight of #{max_weight}lbs."     
+    end 
+    
+    def weakest_exercise
+        min_weight = Float::INFINITY
+        exercise_id = nil 
+        user_exercises = self.exercises.uniq
+        weights_array = user_exercises.each do | exercise |
+            pr = self.personal_record(exercise.id)
+            if pr < min_weight
+                min_weight = pr
+                exercise_id = exercise.id
+            end
+        end
+        exercise = Exercise.find_by(id: exercise_id)
+        puts "Your Weakest Exercise is #{exercise.name} at a weight of #{min_weight}lbs."
+    end
 end 

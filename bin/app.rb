@@ -7,7 +7,7 @@ require "tty-prompt"
 
 def welcome_message
     puts "~~~~~~~~~~~~~~~~~~~~~~~~~"
-    puts "} Welcome to BodyWork! {"
+    puts "} Welcome to ExerStats! {"
     puts "~~~~~~~~~~~~~~~~~~~~~~~~~"
     puts
     user_input 
@@ -158,38 +158,22 @@ def stat_menu
     end
 end
 
-def strongest_exercise
-    max_weight = 0
-    exercise_id = nil
-    @user.records.each do |record| 
-        if record.weight > max_weight
-            max_weight = record.weight 
-            exercise_id = record.exercise_id
-        end  
-    end 
-    exercise = Exercise.find_by(id: exercise_id)
-    puts "Your strongest exercise is #{exercise.name} at a weight of #{max_weight}lbs."  
+def strongest_exercise 
+    @user.strongest_exercise
     stat_menu    
 end 
 
 def weakest_exercise
-    min_weight = 1000
-    exercise_id = nil
-    @user.records.each do |record| 
-        if record.weight < min_weight
-            min_weight = record.weight 
-            exercise_id = record.exercise_id
-        end  
-    end 
-    exercise = Exercise.find_by(id: exercise_id)
-    puts "Your Weakest Exercise is #{exercise.name} at a weight of #{min_weight}lbs."
+    @user.weakest_exercise
     stat_menu 
 end
     
 def personal_records
     user_exercises = @user.exercises.uniq
     exercise_id = select_an_exercise(user_exercises)
-    @user.personal_record(exercise_id)
+    exercise = Exercise.find_by(id: exercise_id)
+    pr = @user.personal_record(exercise_id)
+    puts "Your PR for #{exercise.name} is #{pr}lbs."
     stat_menu
 end 
 
